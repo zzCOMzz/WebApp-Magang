@@ -1,0 +1,22 @@
+version: '3'
+services: 
+  webapp-magang:
+    build: .
+    container_name: webapp-magang
+    ports: 
+      - "80:80"
+    volumes: 
+      - uploadData:/var/www/html/Project-Magang-App-Uploads
+    depends_on: 
+      - webapp-db
+    command: ["./wait-for-it.sh","webapp-db:3306","-t","150","--","./init.sh"]
+  webapp-db:
+    image: mysql:5.7
+    container_name: webapp-db
+    environment: 
+      - MYSQL_ROOT_PASSWORD=pertamina
+      - MYSQL_USER=it-mor
+      - MYSQL_PASSWORD=pertamina
+      - MYSQL_DATABASE=bukutamu_db
+volumes: 
+  uploadData:

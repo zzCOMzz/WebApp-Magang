@@ -1,13 +1,18 @@
-FROM php:7.2-apache
+FROM php-composer-mysql:latest
 
-WORKDIR /home/refnaldy/Myproject/server1
+WORKDIR /var/www/html/Project-Magang-App/
 
-ENV APACHE_DOCUMENT_ROOT /home/refnaldy/Myproject/server1
-COPY . Project-Magang-App/
+RUN ["mkdir","/var/www/html/Project-Magang-App-Uploads"]
 
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+COPY . .
+RUN ["curl","-o","wait-for-it.sh","https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh"]
+RUN ["chmod","ug+x","wait-for-it.sh"]
+RUN ["chmod","ug+x","init.sh"]
+RUN ["composer","install"]
+RUN docker-php-ext-install pdo_mysql
+
+
 
 EXPOSE 80
 
-CMD [ "apache2-foreground" ]
+CMD ["apache2-foreground"];
