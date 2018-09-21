@@ -1,4 +1,4 @@
-FROM php-composer-mysql:latest
+FROM ariefkahfi/php-composer-mysql:latest
 
 WORKDIR /var/www/html/Project-Magang-App/
 

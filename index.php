@@ -37,6 +37,10 @@ $router->delete("/api/tamu/(\w+)",function($id) use ($pdo , $uploadDir , $hWrite
                 if (iterator_count($fsIterator) == 0) {
                     rmdir($uploadDir . "/" . $numberIdentity . "/" . $dateIn);
                 }
+                $fsIteratorNumberIdentity = new FilesystemIterator($uploadDir . "/" . $numberIdentity);
+                if (iterator_count($fsIteratorNumberIdentity) == 0) {
+                    rmdir($uploadDir . "/" . $numberIdentity);
+                }
                 echo json_encode(
                     array(
                         'code'=>200,
