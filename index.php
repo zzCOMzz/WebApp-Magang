@@ -30,18 +30,6 @@ $router->post("/api/tamu",function() use ($pdo , $uploadDir){
         $dateIn = $_POST['date_in'];
         $faceId = $_FILES['face_id'];
 
-        $pQuery = $pdo->query("select * from tamu where number_identity = ?",PDO::FETCH_OBJ);
-        $pResult = $pQuery->fetch();
-        if(isset($pResult)){
-            $uploadDir .= "/" . $numberIdentity . "/" . $dateIn;
-            if(!file_exists($uploadDir)){
-                mkdir($uploadDir);
-            }
-                
-
-            return;
-        }
-
         
         $pSt = $pdo->prepare("insert into tamu values (?,?,?,?,?,?,?,?)");
         $pdo->beginTransaction();
