@@ -12,9 +12,7 @@ $pdo = $init->getPdo();
 $uploadDir = $_SERVER['DOCUMENT_ROOT'] . "/Project-Magang-App-Uploads"; 
 
 
-$router->get("/hello",function(){
-    echo $_SERVER['DOCUMENT_ROOT'];
-});
+
 
 $router->post("/api/tamu",function() use ($pdo , $uploadDir){
     $cType = $_SERVER['CONTENT_TYPE'];
@@ -44,20 +42,20 @@ $router->post("/api/tamu",function() use ($pdo , $uploadDir){
         $pSt->bindValue(8, $dateIn);
         $pSt->execute();
 
-        $uploadDir .= "/" . $numberIdentity;
+        $numberIdentityDir = "/" . $uploadDir . "/" . $numberIdentity;
 
-        if(!file_exists($uploadDir)){
-            mkdir($uploadDir);
+        if(!file_exists($numberIdentityDir)){
+            mkdir($numberIdentityDir);
         }
 
-        $uploadDir .= "/" . $dateIn;
+        $dateInDir = "/" . $numberIdentityDir . "/" . $dateIn;
 
-        if(!file_exists($uploadDir)) {
-            mkdir($uploadDir);
+        if(!file_exists($dateInDir)) {
+            mkdir($dateInDir);
         }
 
-        $uploadDir .= "/" . uniqid() . ".png";
-        $isUploaded = move_uploaded_file($faceId['tmp_name'] , $uploadDir);
+        $finalDir = $dateInDir .  "/" . uniqid() . ".png";
+        $isUploaded = move_uploaded_file($faceId['tmp_name'] , $finalDir);
 
 
 
@@ -70,12 +68,13 @@ $router->post("/api/tamu",function() use ($pdo , $uploadDir){
                 )
             );
         }else{
-            unlink($uploadDir . "/asd.png");
-            header("HTTP/1.0 500 Error Internal Server");    
+            rmdir($dateInDir);
+            rmdir($numberIdentityDir);
+
             echo json_encode(
                 array(
-                    'code'=>500,
-                    'data'=>'Server cannot proceed this request'
+                    'code'=>200,
+                    'data'=>'Process not completed'
                 )
             );
         }
