@@ -3,6 +3,8 @@ FROM php-composer-mysql:latest
 WORKDIR /var/www/html/Project-Magang-App/
 
 RUN ["mkdir","/var/www/html/Project-Magang-App-Uploads"]
+RUN chmod 0777 -R /var/www/html/Project-Magang-App-Uploads
+
 
 COPY . .
 RUN ["curl","-o","wait-for-it.sh","https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh"]

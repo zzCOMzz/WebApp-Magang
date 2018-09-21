@@ -18,7 +18,7 @@ class InitDb {
         );
     }
 
-    public function getPdo(){
+    public function getPdo(): \PDO{
         return $this->$iPdo;
     }
 
@@ -26,12 +26,14 @@ class InitDb {
         $pdo = new \PDO("mysql:host=webapp-db;dbname=bukutamu_db","it-mor","pertamina");
         $pdo->exec(
             "create table if not exists tamu (
-                number_identity varchar(250) primary key,
+                id varchar(250) primary key,
+                number_identity varchar(250),
                 name varchar(250),
                 gender varchar(20),
                 address varchar(250),
                 phone_no varchar(20),
-                purpose varchar(250)
+                purpose varchar(250),
+                date_in date
             )"
         );
     }
