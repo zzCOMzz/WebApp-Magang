@@ -3,18 +3,71 @@ require __DIR__ . "/vendor/autoload.php";
 
 use Bramus\Router\Router;
 use Model\InitDb;
+use Util\HeaderWriter;
 
 
 $init = new InitDb();
+$hWriter = new HeaderWriter();
 $router = new Router();
 $pdo = $init->getPdo();
 
 $uploadDir = $_SERVER['DOCUMENT_ROOT'] . "/Project-Magang-App-Uploads"; 
 
 
+$router->delete("/api/tamu/(\w+)",function($id) use ($pdo , $uploadDir , $hWriter){ 
+    $pPst = $pdo->prepare("select * from tamu where id = ?");
+    $pPst->bindValue(1 , $id);
+    $pPst->execute();
+    $pResult = $pPst->fetch(PDO::FETCH_OBJ);
+
+    if(isset($pResult)) {
+        $numberIdentity = $pResult->number_identity;
+        $dateIn = $pResult->date_in;
+
+        try {
+            $pPreDelete = $pdo->prepare("delete from tamu where id = ?");
+            $pPreDelete->bindValue(1,$id);
+            $pPreDelete->execute();
+
+            $filePath = $uploadDir .  "/" . $numberIdentity . "/" . $dateIn . "/" . $id . ".png";
+            $isDeleted = unlink($filePath);
+    
+            if($isDeleted) {
+                $fsIterator = new FilesystemIterator($uploadDir . "/" . $numberIdentity . "/" . $dateIn);
+                if (iterator_count($fsIterator) == 0) {
+                    rmdir($uploadDir . "/" . $numberIdentity . "/" . $dateIn);
+                }
+                echo json_encode(
+                    array(
+                        'code'=>200,
+                        'data'=>'Delete success'
+                    )
+                );
+            }
+        }catch(PDOException $pdoEx){
+            echo json_encode(
+                array(
+                    'code'=>200,
+                    'data'=>'Delete failed'
+                )
+            );
+        }
 
 
-$router->post("/api/tamu",function() use ($pdo , $uploadDir){
+
+    }else {
+        $hWriter->writeHeader(404,"Not Found");
+        echo json_encode(
+            array(
+                'code'=>404,
+                'data'=>'Data not found'
+            )
+        );
+    }
+
+});
+
+$router->post("/api/tamu",function() use ($pdo , $uploadDir , $hWriter){
     $cType = $_SERVER['CONTENT_TYPE'];
 
     if(strstr($cType ,  "multipart/form-data") != ""){
@@ -54,7 +107,7 @@ $router->post("/api/tamu",function() use ($pdo , $uploadDir){
             mkdir($dateInDir);
         }
 
-        $finalDir = $dateInDir .  "/" . uniqid() . ".png";
+        $finalDir = $dateInDir .  "/" . $id . ".png";
         $isUploaded = move_uploaded_file($faceId['tmp_name'] , $finalDir);
 
 
@@ -80,7 +133,7 @@ $router->post("/api/tamu",function() use ($pdo , $uploadDir){
         }
 
     } else {
-        header("HTTP/1.0 405 Method Not Allowed");
+        $hWriter->writeHeader(405,"Method Not Allowed");
         echo("Method Not Allowed");
     }
 });
